@@ -1,0 +1,17 @@
+{
+  "name": "os-excel-handler",
+  "version": "1.0.0",
+  "description": "A helper to deal with excel files",
+  "main": "index.js",
+  "keywords": [
+    "osfunapps",
+    "tools",
+    "excel",
+    "npm"
+  ],
+  "author": "osfunapps",
+  "license": "ISC",
+  "dependencies": {
+    "exceljs": "^2.0.1"
+  }
+}

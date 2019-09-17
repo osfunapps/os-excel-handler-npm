@@ -3,7 +3,6 @@ let Excel = require('exceljs');
 
 /** Determined this value based upon experimentation */
 PIXELS_PER_EXCEL_WIDTH_UNIT = 6;
-
 const self = module.exports = {
 
     /**
@@ -20,29 +19,33 @@ const self = module.exports = {
     /**
      * Will set a default font to all of the empty cells in the sheet.
      */
-    setFontInAllEmptyCells(sheet, name='Arial', size=12, bold=false, italic=false) {
-        sheet.columns.forEach(function(row) {
-            row.style = {font:{name: name, size: size, bold: bold, italic: italic}};
+    setFontInAllEmptyCells(sheet, name = 'Arial', size = 12, bold = false, italic = false) {
+        sheet.columns.forEach(function (row) {
+            row.style = {font: {name: name, size: size, bold: bold, italic: italic}};
         });
     },
 
     /**
      * Will fit the column width to be in the size of the biggest line in the column
      */
-    fitColumnWidthToText(sheet, colLetter) {
+    fitColumnWidthToText(sheet, colLettersArr = []) {
         let maxColumnLength = 0;
-        sheet.getColumn(colLetter).eachCell((cell) => {
-            if (typeof cell.value === 'string') {
+        for (let i = 0; i < colLettersArr.length; i++) {
+            let colLetter = colLettersArr[i];
 
-                const fontSize = cell.font && cell.font.size ? cell.font.size : 11;
-                let pixelWidth = require('string-pixel-width');
-                const cellWidth = pixelWidth(cell.value, {size: fontSize});
+            sheet.getColumn(colLetter).eachCell((cell) => {
+                if (typeof cell.value === 'string') {
 
-                maxColumnLength = Math.max(maxColumnLength, cellWidth)
-            }
-        });
+                    const fontSize = cell.font && cell.font.size ? cell.font.size : 11;
+                    let pixelWidth = require('string-pixel-width');
+                    const cellWidth = pixelWidth(cell.value, {size: fontSize});
 
-        sheet.getColumn(colLetter).width = maxColumnLength / PIXELS_PER_EXCEL_WIDTH_UNIT + 1
+                    maxColumnLength = Math.max(maxColumnLength, cellWidth)
+                }
+            });
+
+            sheet.getColumn(colLetter).width = maxColumnLength / PIXELS_PER_EXCEL_WIDTH_UNIT + 1
+        }
     },
 
     /**
@@ -88,9 +91,14 @@ const self = module.exports = {
      * @param bold -> font bold toggle
      * @param italic -> font italic toggle
      */
-    setValue(sheet, cellId, value, fontName='Arial', fontSize=12, bold=false, italic=false) {
+    setValue(sheet, cellId, value, fontName = 'Arial', fontSize = 12, bold = false, italic = false) {
         sheet.getCell(cellId).value = value;
-        sheet.getCell(cellId).style.font = {name: fontName, size: fontSize, bold: bold, italic: italic};
+        sheet.getCell(cellId).style.font = {
+            name: fontName,
+            size: fontSize,
+            bold: bold,
+            italic: italic
+        };
     },
 
     /**
@@ -125,15 +133,16 @@ const self = module.exports = {
      * Will set the background color of a given cell
      */
     setCellBackgroundColor(sheet, cellId, hexColor) {
-        sheet.getCell(cellId).fill = {
-            type: 'gradient',
-            gradient: 'angle',
-            degree: 0,
-            stops: [
-                {position: 0, color: {argb: hexColor}},
-                {position: 1, color: {argb: hexColor}},
-            ]
-        };
+        let cell = sheet.getCell(cellId)
+        setBackgroundColor(cell, hexColor)
+    },
+
+
+    /**
+     * Will set the background color of a given element
+     */
+    setElementBackgroundColor(ele, hexColor) {
+        setBackgroundColor(ele, hexColor)
     },
 
     /**
@@ -143,6 +152,59 @@ const self = module.exports = {
         sheet.getCell(cellId).font = {
             color: {argb: hexColor},
         };
-    }
+    },
 
+    /**
+     * Will return a row
+     */
+    getRow(sheet, row) {
+        return sheet.getRow(row)
+    },
+
+    /**
+     * Will return a column
+     */
+    getColumn(sheet, column) {
+        return sheet.getColumn(column)
+    },
+
+    /**
+     * Will change the entire style of an element
+     */
+    setEleStyle(ele,
+                fontName = 'Arial',
+                fontSize = 12,
+                bold = false,
+                italic = false,
+                backgroundColor = null,
+                fontColor = null) {
+        ele.eachCell((cell) => {
+            cell.style = {
+                font: {
+                    name: fontName,
+                    size: fontSize,
+                    bold: bold,
+                    italic: italic
+                }
+            };
+            if (fontColor !== null) {
+                cell.style.font.color = {argb: fontColor}
+            }
+        });
+        if (backgroundColor !== null) {
+            self.setElementBackgroundColor(ele, backgroundColor)
+        }
+    }
 };
+
+function setBackgroundColor(ele, hexColor) {
+    ele.fill = {
+        type: 'gradient',
+        gradient: 'angle',
+        degree: 0,
+        stops: [
+            {position: 0, color: {argb: hexColor}},
+            {position: 1, color: {argb: hexColor}},
+        ]
+    };
+}

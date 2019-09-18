@@ -1,6 +1,6 @@
 {
   "name": "os-excel-handler",
-  "version": "1.0.2",
+  "version": "1.0.6",
   "description": "A helper to deal with excel files",
   "main": "index.js",
   "keywords": [

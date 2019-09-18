@@ -45,6 +45,7 @@ const self = module.exports = {
             });
 
             sheet.getColumn(colLetter).width = maxColumnLength / PIXELS_PER_EXCEL_WIDTH_UNIT + 1
+            maxColumnLength = 0
         }
     },
 
@@ -61,12 +62,27 @@ const self = module.exports = {
     /**
      * Will align the text in the cell to be in the middle and center
      */
-    alignCenter(sheet, cellId) {
-        if (sheet.getCell(cellId).alignment === undefined) {
-            sheet.getCell(cellId).alignment = {};
-        }
-        sheet.getCell(cellId).alignment.vertical = 'middle';
-        sheet.getCell(cellId).alignment.horizontal = 'center';
+    alignCellCenter(sheet, cellId) {
+        let cell = sheet.getCell(cellId)
+        alignCenter(cell)
+    },
+
+    /**
+     * Will align the text in the element to be in the middle and center
+     */
+    alignCenter(ele) {
+      alignCenter(ele)
+    },
+
+    /**
+     * Will change the row height.
+     * NOTICE: the default raw height, if didn't changed, is 15.
+     *
+     * @param row -> the row in question
+     * @param newRowHeight -> the new height of the row
+     */
+    setRowHeight(row, newRowHeight) {
+      row.height = newRowHeight
     },
 
 
@@ -179,13 +195,11 @@ const self = module.exports = {
                 backgroundColor = null,
                 fontColor = null) {
         ele.eachCell((cell) => {
-            cell.style = {
-                font: {
+            cell.style.font = {
                     name: fontName,
                     size: fontSize,
                     bold: bold,
                     italic: italic
-                }
             };
             if (fontColor !== null) {
                 cell.style.font.color = {argb: fontColor}
@@ -207,4 +221,12 @@ function setBackgroundColor(ele, hexColor) {
             {position: 1, color: {argb: hexColor}},
         ]
     };
+}
+
+function alignCenter(ele) {
+    if (ele.alignment === undefined) {
+        ele.alignment = {};
+    }
+    ele.alignment.vertical = 'middle';
+    ele.alignment.horizontal = 'center';
 }
